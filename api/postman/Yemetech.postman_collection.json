@@ -1,0 +1,111 @@
+{
+	"info": {
+		"_postman_id": "739cef90-a395-4d0d-8d77-fed204cd861e",
+		"name": "Yemetech",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23826537"
+	},
+	"item": [
+		{
+			"name": "Get Access Control",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}requests",
+					"host": [
+						"{{url}}requests"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Access Control",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"nikesh@yopmial.com\",\r\n    \"resource\": \"access:server\",\r\n    \"reason\": \"to fetch data\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}requests",
+					"host": [
+						"{{url}}requests"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Access Control",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"status\": \"APPROVED\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}requests/:id/status",
+					"host": [
+						"{{url}}requests"
+					],
+					"path": [
+						":id",
+						"status"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
