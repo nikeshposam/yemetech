@@ -1,18 +1,17 @@
 export default function Filter({ setFilter }) {
     const setAll = () => {
-        setFilter((filter) => {
-            const newFilter = {};
-            for (const key in filter) {
-                newFilter[key] = true;
-            }
-            return newFilter
-        })
+        setFilter([])
     }
     const toggleFilter = (e) => {
-        setFilter((filter) => ({
-            ...filter,
-            [e.target.name]: e.target.checked
-        }))
+        const val = e.target.name.toUpperCase();
+        setFilter((prevState) => {
+            const newState = [...prevState];
+            if (e.target.checked) {
+                newState.push(val);
+                return newState
+            }
+            return newState.filter(v => v != val);
+        })
     }
     return (
         <fieldset>

@@ -1,16 +1,18 @@
 import { useEffect, useReducer, useState } from 'react'
-import { Formik, Form, Field } from 'formik';
 import moment from 'moment/moment';
 import './App.css'
 import Filter from './components/Filter';
 import useFetch from './hooks/useFetch';
+import RequestForm from './components/RequestForm';
+import { isEmpty } from 'radash'
 
 const reducer = (state, action) => {
   switch (action.type) {
     case "init":
       return [...action.payload]
-    case "add":
-      return [...state, action.payload]
+    case "add": {
+      return [...state, action.payload];
+    }
     case "update": {
       const index = state.findIndex(s => action.payload.id == s.id);
       const state_ = [...state];
@@ -24,10 +26,9 @@ const reducer = (state, action) => {
 }
 
 function App() {
-  const initState = { email: "", resource: "", reason: "" };
-  const { data, error, loading } = useFetch("api/requests");
+  const [filter, setFilter] = useState([]);
+  const { data, error, loading } = useFetch("api/requests", filter);
   const [request, dispatch] = useReducer(reducer, []);
-  const [filter, setFilter] = useState({ pending: false, approved: false, rejected: false });
 
   const addRequest = (values, { resetForm }) => {
     fetch("api/requests", { method: "POST", body: JSON.stringify(values), headers: { "Content-type": "application/json" } })
@@ -50,49 +51,40 @@ function App() {
 
   return (
     <div className='main'>
+      <RequestForm addRequest={addRequest} />
       <div>
-        <Formik initialValues={initState} onSubmit={addRequest}>
-          {({ isSubmitting }) => (
-            <Form className='request-form'>
-              <Field type='text' name='email' />
-              <Field type='text' name='resource' />
-              <Field type='text' name='reason' />
-              <button type='submit' disbled={isSubmitting}>Add</button>
-            </Form>
-          )}
-        </Formik>
         <Filter setFilter={setFilter} />
-      </div>
-      {loading ? "Loading..." :
-        <table>
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Resource</th>
-              <th>Reason</th>
-              <th>Status</th>
-              <th>Created At</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {request.map((r, index) => {
-              const disableButton = r.status != 'PENDING';
-              return <tr key={index}>
-                <td>{r.email}</td>
-                <td>{r.resource}</td>
-                <td>{r.reason}</td>
-                <td>{r.status}</td>
-                <td>{moment(r.createdAt).format("DD-MM-YYYY HH:mm:ss")}</td>
-                <td>
-                  <button type='button' disabled={disableButton} onClick={updateRequest(r.id, "APPROVED")}>Approve</button>
-                  <button type='button' disabled={disableButton} onClick={updateRequest(r.id, "REJECTED")}>Reject</button>
-                </td>
+        {loading ? "Loading..." :
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Resource</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Action</th>
               </tr>
-            })}
-          </tbody>
-        </table>
-      }
+            </thead>
+            <tbody>
+              {request.filter(r => isEmpty(filter) || filter.includes(r.status)).map((r, index) => {
+                const disableButton = r.status != 'PENDING';
+                return <tr key={index}>
+                  <td>{r.email}</td>
+                  <td>{r.resource}</td>
+                  <td>{r.reason}</td>
+                  <td>{r.status}</td>
+                  <td>{moment(r.createdAt).format("DD-MM-YYYY HH:mm:ss")}</td>
+                  <td>
+                    <button type='button' disabled={disableButton} onClick={updateRequest(r.id, "APPROVED")}>Approve</button>
+                    <button type='button' disabled={disableButton} onClick={updateRequest(r.id, "REJECTED")}>Reject</button>
+                  </td>
+                </tr>
+              })}
+            </tbody>
+          </table>
+        }
+      </div>
     </div >
   )
 }

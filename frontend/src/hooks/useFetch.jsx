@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react"
 
-export default function useFetch(api) {
+export default function useFetch(api, filter) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [data, setData] = useState(null);
     useEffect(() => {
-        fetch(api)
+        const newUrl = api + "?" + new URLSearchParams({ status: filter.join() })
+        fetch(newUrl)
             .then(res => res.json())
             .then(res => setData(res))
             .catch(err => {
