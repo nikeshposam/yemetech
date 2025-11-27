@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "rootDir": "./src",
     "outDir": "./dist",
+    "rootDir": "./src",
     "module": "esnext",
     "moduleResolution": "bundler",
     "target": "es2022",
+    "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
