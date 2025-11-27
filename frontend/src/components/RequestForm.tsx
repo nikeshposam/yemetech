@@ -1,5 +1,12 @@
 import { object, string } from "yup";
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form, Field, type FormikHelpers } from 'formik';
+import type { Resource } from "../App";
+
+export type SaveResource = Pick<Resource, "email" | "resource" | "reason">
+
+interface RequestFormProps {
+    addRequest: (values: SaveResource, action: FormikHelpers<SaveResource>) => void
+}
 
 const validation = object({
     email: string().email().required(),
@@ -7,7 +14,7 @@ const validation = object({
     reason: string().required()
 })
 
-export default function RequestForm({ addRequest }) {
+export default function RequestForm({ addRequest }: RequestFormProps) {
     const initState = { email: "", resource: "", reason: "" };
     return (
         <Formik initialValues={initState} onSubmit={addRequest} validationSchema={validation}>
@@ -19,7 +26,7 @@ export default function RequestForm({ addRequest }) {
                     <Field type='text' name='resource' placeholder="Enter resource" className={errors.resource ? "danger" : ""} />
                     <label htmlFor='reason'>Reason</label>
                     <Field type='text' name='reason' placeholder="Enter reason" className={errors.reason ? "danger" : ""} />
-                    <button type='submit' disbled={isSubmitting}>Add</button>
+                    <button type='submit' disabled={isSubmitting}>Add</button>
                 </Form>
             )}
         </Formik>

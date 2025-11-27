@@ -1,19 +1,36 @@
-import { useEffect, useReducer, useState } from 'react'
-import moment from 'moment/moment';
-import './App.css'
-import Filter from './components/Filter';
+import { useEffect, useReducer, useState, type ReactElement } from 'react'
 import useFetch from './hooks/useFetch';
-import RequestForm from './components/RequestForm';
-import { isEmpty } from 'radash'
+import RequestForm, { type SaveResource } from './components/RequestForm';
+import Filter from './components/Filter';
+import { isEmpty } from 'radash';
+import moment from 'moment';
+import type { FormikHelpers } from 'formik';
 
-const reducer = (state, action) => {
+export type Status = "PENDING" | "APPROVED" | "REJECTED";
+
+export interface Resource {
+  id: number;
+  email: string;
+  resource: string;
+  reason: string;
+  status: Status;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type PartialResource = Partial<Resource>
+
+type ResourceAction = { type: "ADD" | "UPDATE", payload: Resource }
+  | { type: "INIT", payload: Array<Resource> | null }
+
+const reducer = (state: Array<Resource>, action: ResourceAction) => {
   switch (action.type) {
-    case "init":
-      return [...action.payload]
-    case "add": {
+    case "INIT":
+      return [...(action.payload || [])]
+    case "ADD": {
       return [...state, action.payload];
     }
-    case "update": {
+    case "UPDATE": {
       const index = state.findIndex(s => action.payload.id == s.id);
       const state_ = [...state];
       state_[index] = action.payload;
@@ -25,28 +42,28 @@ const reducer = (state, action) => {
   }
 }
 
-function App() {
-  const [filter, setFilter] = useState([]);
-  const { data, error, loading } = useFetch("api/requests", filter);
+function App(): ReactElement {
+  const [filter, setFilter] = useState<Array<Status> | null>(null);
+  const { data, error, loading } = useFetch<Array<Resource>>("api/requests", filter);
   const [request, dispatch] = useReducer(reducer, []);
 
-  const addRequest = (values, { resetForm }) => {
+  const addRequest = (values: SaveResource, action: FormikHelpers<SaveResource>) => {
     fetch("api/requests", { method: "POST", body: JSON.stringify(values), headers: { "Content-type": "application/json" } })
       .then(data => data.json())
-      .then(data => dispatch({ type: "add", payload: data }))
-      .then(() => resetForm())
+      .then(data => dispatch({ type: "ADD", payload: data }))
+      .then(() => action.resetForm())
       .catch(err => console.error(err))
   }
 
-  const updateRequest = (id, status) => () => {
+  const updateRequest = (id: number, status: Status) => () => {
     fetch(`api/requests/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }), headers: { "Content-type": "application/json" } })
       .then(data => data.json())
-      .then(data => dispatch({ type: "update", payload: data }))
+      .then(data => dispatch({ type: "UPDATE", payload: data }))
       .catch(err => console.error(err))
   }
 
   useEffect(() => {
-    if (!loading && !error) { dispatch({ type: "init", payload: data }) }
+    if (!loading && !error) { dispatch({ type: "INIT", payload: data }) }
   }, [data, error, loading])
 
   return (
@@ -67,7 +84,7 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {request.filter(r => isEmpty(filter) || filter.includes(r.status)).map((r, index) => {
+              {request.filter(r => isEmpty(filter) || filter?.includes(r.status)).map((r, index) => {
                 const disableButton = r.status != 'PENDING';
                 return <tr key={index}>
                   <td>{r.email}</td>
