@@ -23,13 +23,13 @@ class RequestController {
         this.addRequest = this.addRequest.bind(this);
         this.updateRequest = this.updateRequest.bind(this);
     }
-    getRequests(req: Request<unknown, unknown, unknown, Pick<Resource, "status">>, res: Response<unknown, Resource>) {
+    getRequests(req: Request<unknown, unknown, unknown, Pick<Resource, "status">>, res: Response<Array<Resource>, unknown>) {
         const { query: filters } = req;
         const status = isEmpty(filters.status) ? ["PENDING", "APPROVED", "REJECTED"] : filters.status.split(",");
         const result = this.requests.filter(r => status.includes(r.status))
         res.status(200).send(result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
     }
-    addRequest(req: Request<unknown, unknown, Resource, unknown>, res: Response<unknown, Resource | ServerError>, next: NextFunction) {
+    addRequest(req: Request<unknown, unknown, Resource, unknown>, res: Response<Resource | ServerError, unknown>) {
         const { body: payload } = req;
         if (!payload) {
             res.status(404);
@@ -58,7 +58,7 @@ class RequestController {
         this.requests.push(request);
         res.status(201).send(request);
     }
-    updateRequest(req: Request<{ id: number }, unknown, Partial<Resource>, unknown>, res: Response<unknown, Resource | ServerError>) {
+    updateRequest(req: Request<{ id: number }, unknown, Partial<Resource>, unknown>, res: Response<Resource | ServerError, unknown>) {
         const { params: { id }, body: payload } = req;
         const request = this.requests.find(r => r.id == id && r.status == "PENDING")
         if (!request) {
