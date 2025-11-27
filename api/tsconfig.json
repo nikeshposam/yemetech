@@ -3,7 +3,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "module": "esnext",
-    "moduleResolution": "nodenext",//"bundler",
+    "moduleResolution": "bundler",
     "target": "es2022",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true

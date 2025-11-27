@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { isEmpty } from "radash";
 type Resource = {
     id: number,
@@ -8,6 +8,10 @@ type Resource = {
     status: "PENDING" | "APPROVED" | "REJECTED"
     createdAt: Date,
     updatedAt: Date,
+}
+type ServerError = {
+    err: string,
+    message: string
 }
 class RequestController {
     id: number;
@@ -25,7 +29,7 @@ class RequestController {
         const result = this.requests.filter(r => status.includes(r.status))
         res.status(200).send(result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
     }
-    addRequest(req, res, next) {
+    addRequest(req: Request<unknown, unknown, Resource, unknown>, res: Response<unknown, Resource | ServerError>, next: NextFunction) {
         const { body: payload } = req;
         if (!payload) {
             res.status(404);
@@ -45,7 +49,7 @@ class RequestController {
             });
         }
         this.id = this.id + 1;
-        const request = {
+        const request: Resource = {
             ...payload,
             id: this.id,
             status: "PENDING",
@@ -54,7 +58,7 @@ class RequestController {
         this.requests.push(request);
         res.status(201).send(request);
     }
-    updateRequest(req, res) {
+    updateRequest(req: Request<{ id: number }, unknown, Partial<Resource>, unknown>, res: Response<unknown, Resource | ServerError>) {
         const { params: { id }, body: payload } = req;
         const request = this.requests.find(r => r.id == id && r.status == "PENDING")
         if (!request) {

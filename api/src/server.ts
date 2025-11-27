@@ -1,11 +1,11 @@
-import express, { type Express } from "express";
+import express from "express";
 import cors from "cors";
 import requestsRoute from "./routes/requestsRoutes";
 
-const server: Express = express();
+const server = express();
 
 server.use(express.json());
 server.use(cors({ origin: "*" }));
-server.use("/api/requests", requestsRoute)
+server.use("/api/requests", requestsRoute);
 
 export default server;
