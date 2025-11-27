@@ -1,12 +1,19 @@
-export default function Filter({ setFilter }) {
+import type { Status } from "../App";
+
+interface FilterProps {
+    setFilter: React.Dispatch<React.SetStateAction<Array<Status> | null>>;
+}
+
+export default function Filter({ setFilter }: FilterProps) {
     const setAll = () => {
         setFilter([])
     }
-    const toggleFilter = (e) => {
-        const val = e.target.name.toUpperCase();
-        setFilter((prevState) => {
-            const newState = [...prevState];
-            if (e.target.checked) {
+    const toggleFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const ele = e.target;
+        const val = ele.name.toUpperCase() as Status;
+        setFilter((prevState: Array<Status> | null) => {
+            const newState = [...(prevState || [])];
+            if (ele.checked) {
                 newState.push(val);
                 return newState
             }
