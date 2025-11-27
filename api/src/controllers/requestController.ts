@@ -1,4 +1,17 @@
-class requestController {
+import type { Request, Response } from "express";
+import { isEmpty } from "radash";
+type Resource = {
+    id: number,
+    email: string,
+    resource: string,
+    reason: string,
+    status: "PENDING" | "APPROVED" | "REJECTED"
+    createdAt: Date,
+    updatedAt: Date,
+}
+class RequestController {
+    id: number;
+    requests: Array<Resource>;
     constructor() {
         this.id = 0;
         this.requests = [];
@@ -6,11 +19,11 @@ class requestController {
         this.addRequest = this.addRequest.bind(this);
         this.updateRequest = this.updateRequest.bind(this);
     }
-    getRequests(req, res) {
+    getRequests(req: Request<unknown, unknown, unknown, Pick<Resource, "status">>, res: Response<unknown, Resource>) {
         const { query: filters } = req;
-        const status = (!filters?.status || filters.status?.includes("All")) ? ["PENDING", "APPROVED", "REJECTED"] : filters?.status?.split(",");
+        const status = isEmpty(filters.status) ? ["PENDING", "APPROVED", "REJECTED"] : filters.status.split(",");
         const result = this.requests.filter(r => status.includes(r.status))
-        res.status(200).send(result.sort((a, b) => b.createdAt - a.createdAt));
+        res.status(200).send(result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
     }
     addRequest(req, res, next) {
         const { body: payload } = req;
@@ -56,4 +69,4 @@ class requestController {
     }
 }
 
-export default new requestController();
+export default new RequestController();
