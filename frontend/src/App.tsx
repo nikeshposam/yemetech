@@ -44,11 +44,11 @@ const reducer = (state: Array<Resource>, action: ResourceAction) => {
 
 function App(): ReactElement {
   const [filter, setFilter] = useState<Array<Status> | null>(null);
-  const { data, error, loading } = useFetch<Array<Resource>>("api/requests", filter);
+  const { data, error, loading } = useFetch<Array<Resource>>(`${import.meta.env.VITE_API_URL}/requests`, filter);
   const [request, dispatch] = useReducer(reducer, []);
 
   const addRequest = (values: SaveResource, action: FormikHelpers<SaveResource>) => {
-    fetch("api/requests", { method: "POST", body: JSON.stringify(values), headers: { "Content-type": "application/json" } })
+    fetch(`${import.meta.env.VITE_API_URL}/requests`, { method: "POST", body: JSON.stringify(values), headers: { "Content-type": "application/json" } })
       .then(data => data.json())
       .then(data => dispatch({ type: "ADD", payload: data }))
       .then(() => action.resetForm())
@@ -56,7 +56,7 @@ function App(): ReactElement {
   }
 
   const updateRequest = (id: number, status: Status) => () => {
-    fetch(`api/requests/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }), headers: { "Content-type": "application/json" } })
+    fetch(`${import.meta.env.VITE_API_URL}/requests/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }), headers: { "Content-type": "application/json" } })
       .then(data => data.json())
       .then(data => dispatch({ type: "UPDATE", payload: data }))
       .catch(err => console.error(err))
